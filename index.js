@@ -1,23 +1,29 @@
-// https://core.telegram.org/bots/api
-//   https://github.com/yagop/node-telegram-bot-api
-//     https://nodejs.org/en/
-//       https://core.telegram.org
-
-
 const TelegramBat = require('node-telegram-bot-api')
 
-const TOKEN = "1064268202:AAEwzu8IgZVN5CkfSZDc1x1LQVo-3r6R3TM"
+const TOKEN = "1064268202:AAHjoe3ejPaERtDkkiG-eDEmkZDKPROt94g"
 
 const bot = new TelegramBat(TOKEN, {
-  polling: true
-})
-
-bot.on('message', (msg) => {
-  console.log(msg.text)
-
-  if (msg.text >= 0 || msg.text <= 500) {
-    bot.sendMessage(msg.chat.id, App(msg.text))
-  } else {
-    bot.sendMessage(msg.chat.id, 'Что то пошло не так')
+  polling: {
+    interval: 300,
+    autoStart: true,
+    params: {
+      timeout: 10
+    }
   }
 })
+
+bot.on('message', msg => {
+
+  switch (msg.text) {
+    case "Hello":
+      bot.sendMessage(msg.chat.id, 'Hello')
+          break
+    case "Привет":
+      bot.sendMessage(msg.chat.id, 'Здраствуйте')
+          break
+    default:
+      bot.sendMessage(msg.chat.id, 'Я здесь я на месте')
+          break
+  }
+})
+
