@@ -1,6 +1,7 @@
 const fetch = require('node-fetch')
 const Telegraf = require('telegraf')
-const { BOT_TOKEN, TEMP_URL, PORT, URL } = require('dotenv')
+require('dotenv').config()
+const { BOT_TOKEN, TEMP_URL, PORT=5000, URL } = process.env
 
 const bot = new Telegraf(BOT_TOKEN)
 
