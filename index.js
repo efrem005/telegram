@@ -1,29 +1,50 @@
-const TelegramBat = require('node-telegram-bot-api')
+const fetch = require('node-fetch')
+const Telegraf = require('telegraf')
+const { BOT_TOKEN, TEMP_URL, PORT, URL } = require('dotenv')
 
-const TOKEN = "1064268202:AAHjoe3ejPaERtDkkiG-eDEmkZDKPROt94g"
+const bot = new Telegraf(BOT_TOKEN)
 
-const bot = new TelegramBat(TOKEN, {
-  polling: {
-    interval: 300,
-    autoStart: true,
-    params: {
-      timeout: 10
+
+bot.start((ctx) => {
+    bot.telegram.sendMessage(ctx.message.chat.id, `Hello world`,
+        {
+            reply_markup: {
+                inline_keyboard: [
+                    [
+                        {text: "Температура", callback_data: "tempMeteo"}
+                    ]
+                ]
+            }
+        })
+})
+
+bot.action('tempMeteo', async (ctx) => {
+    try {
+        const res = await fetch(TEMP_URL, {
+            method: 'post',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                name: 'temp',
+                count: 1,
+                value: '*',
+            }),
+        })
+            .then(res => res.json())
+
+        await ctx.reply(`
+    Дата: ${res[0].date}
+    Температура: ${res[0].value}
+    `)
+    } catch (e) {
+        console.log(e)
     }
-  }
 })
 
-bot.on('message', msg => {
+bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`)
+bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
+console.log('Started with Webhook')
 
-  switch (msg.text) {
-    case "Hello":
-      bot.sendMessage(msg.chat.id, 'Hello')
-          break
-    case "Привет":
-      bot.sendMessage(msg.chat.id, 'Здраствуйте')
-          break
-    default:
-      bot.sendMessage(msg.chat.id, 'Я здесь я на месте')
-          break
-  }
-})
 
+// bot.launch().then(r => console.log("run telegraf"))
