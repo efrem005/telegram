@@ -1,51 +1,48 @@
-const fetch = require('node-fetch')
 const Telegraf = require('telegraf')
+const {chatAction, tempData, tempMessage, getStart} = require("./function/function")
 require('dotenv').config()
-const { BOT_TOKEN, TEMP_URL, PORT=5000, URL } = process.env
+const {BOT_TOKEN, PORT, URL} = process.env
 
 const bot = new Telegraf(BOT_TOKEN)
 
 
 bot.start((ctx) => {
-    bot.telegram.sendMessage(ctx.message.chat.id, `Hello world`,
-        {
-            reply_markup: {
-                inline_keyboard: [
-                    [
-                        {text: "Температура", callback_data: "tempMeteo"}
-                    ]
-                ]
-            }
-        })
+    getStart(bot, ctx)
 })
 
-bot.action('tempMeteo', async (ctx) => {
+bot.action("tempMeteo", async ctx => {
+    chatAction(bot, ctx)
     try {
-        const res = await fetch(TEMP_URL, {
-            method: 'post',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({
-                name: 'temp',
-                count: 1,
-                value: '*',
-            }),
-        })
-            .then(res => res.json())
-
-        await ctx.reply(`
-    Дата: ${res[0].date}
-    Температура: ${res[0].value}
-    `)
+        const res = await tempData.getMeteoData()
+        bot.telegram.sendMessage(ctx.chat.id, tempMessage(res),
+            {
+                reply_markup: {
+                    inline_keyboard: [
+                        [
+                            {text: "назад", callback_data: 'and'}
+                        ]
+                    ],
+                    resize_keyboard: true
+                }
+            })
     } catch (e) {
         console.log(e)
     }
 })
 
-bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`)
-bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
-console.log('Started with Webhook')
+bot.action("and", ctx => {
+    try {
+        ctx.answerCbQuery()
+        getStart(bot, ctx)
+    } catch (e) {
+        console.log(e)
+    }
+})
 
-
-// bot.launch().then(r => console.log("run telegraf"))
+if (process.env.NODE_ENV === 'production') {
+    bot.telegram.setWebhook(`${URL}/bot${BOT_TOKEN}`)
+    bot.startWebhook(`/bot${BOT_TOKEN}`, null, PORT)
+    console.log('Started with Webhook')
+} else {
+    bot.launch().then(req => console.log("Start Telegram start local"))
+}
