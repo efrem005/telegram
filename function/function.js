@@ -31,13 +31,27 @@ const tempMessage = (data) => {
     `
 }
 
+const valuteMessage = (data) => {
+    return `
+Код валюты: ${data.NumCode}
+Валюта: ${data.Name}
+Цена: ${data.Value}
+    `
+}
+
 const getStart = ( bot, ctx ) => {
     bot.telegram.sendMessage(ctx.chat.id, `Метео Данные Красноярска`,
         {
             reply_markup: {
                 inline_keyboard: [
                     [
-                        { text: "Улица" , callback_data: "tempMeteo"},
+                        { text: "Улица" , callback_data: "tempMeteo"}
+                    ],
+                    [
+                        { text: "Доллар", callback_data: "USD"},
+                        { text: "Евро", callback_data: "EUR"}
+                    ],
+                    [
                         { text: "Сайт", url: "https://efrem005.github.io/MeteoHome/"}
                     ]
                 ],
@@ -46,4 +60,4 @@ const getStart = ( bot, ctx ) => {
         })
 }
 
-module.exports = {chatAction, tempData, tempMessage, getStart};
+module.exports = {chatAction, tempData, tempMessage, getStart, valuteMessage};
