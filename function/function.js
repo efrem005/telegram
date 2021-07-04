@@ -16,11 +16,7 @@ tempData.getMeteoData = () => {
         headers: {
             'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
-            name: 'temp',
-            count: 1,
-            value: '*',
-        }),
+        body: JSON.stringify({id: 1}),
     }).then(res => res.json())
 }
 
